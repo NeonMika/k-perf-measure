@@ -8,12 +8,9 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 
 class KPerfMeasureCompilerPluginTest {
-    // Currently disabled since Kotlin 2.0 is not supported yet
-    // see https://github.com/tschuchortdev/kotlin-compile-testing/issues/411
     @OptIn(ExperimentalCompilerApi::class)
     @Test
     fun `plugin success`() {
-        val t = "-".repeat(2)
         val result = compile(
             SourceFile.kotlin(
                 "main.kt",
@@ -40,7 +37,9 @@ class KPerfMeasureCompilerPluginTest {
                     }
 
                     fun a() {
-                        println("a is a unit method and prints this")
+                        repeat(5) {
+                            println("a is a unit method and prints this")
+                        }
                     }
 
                     fun b() : Int {
@@ -71,11 +70,37 @@ class KPerfMeasureCompilerPluginTest {
     }
 
     @OptIn(ExperimentalCompilerApi::class)
+    @Test
+    fun `SSP example`() {
+        val result = compile(
+            SourceFile.kotlin(
+                "main.kt",
+                """
+                    fun main() {
+                      sayHello()
+                      sayHello("Hi", "SSP")
+                    }
+
+                    fun sayHello(greeting: String = "Hello", name: String = "World") {
+                        val result = "${'$'}greeting, ${'$'}name!"
+                        println(result)
+                    }
+                    """
+            )
+        )
+        assertEquals(KotlinCompilation.ExitCode.OK, result.exitCode)
+
+        result.main()
+    }
+
+    @OptIn(ExperimentalCompilerApi::class)
     fun compile(
         sourceFiles: List<SourceFile>,
         compilerPluginRegistrar: CompilerPluginRegistrar = PerfMeasureComponentRegistrar(),
     ): JvmCompilationResult {
         return KotlinCompilation().apply {
+            // To have access to kotlinx.io
+            inheritClassPath = true
             sources = sourceFiles
             compilerPluginRegistrars = listOf(compilerPluginRegistrar)
             // commandLineProcessors = ...

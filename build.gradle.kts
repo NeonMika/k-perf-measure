@@ -22,8 +22,9 @@ dependencies {
     // https://youtrack.jetbrains.com/issue/KT-47897/Official-Kotlin-Gradle-plugin-api
     implementation("org.jetbrains.kotlin:kotlin-gradle-plugin-api:2.0.0") // Use the appropriate version
     implementation(gradleApi())
-    // must be in target program!
-    // implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.5.3")
+    // must also be in target program!
+    // this is here for the tests to run
+    implementation("org.jetbrains.kotlinx:kotlinx-io-core:0.5.3")
 
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
